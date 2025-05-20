@@ -6,18 +6,18 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
+<body class="min-h-screen p-6 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')] bg-cover bg-center text-white">
 
   <div x-data="rootFinderApp()" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
     <!-- Header -->
     <h1 class="text-2xl font-bold mb-4 text-center">Root Finding Methods</h1>
 
     <!-- Menu -->
-    <div class="flex space-x-4 mb-6 justify-center">
+    <div class="flex flex-wrap gap-4 mb-6 justify-center">
       <template x-for="method in methods" :key="method.id">
         <button
           @click="selectMethod(method.id)"
-          class="px-4 py-2 rounded-lg"
+          class="px-4 py-2 rounded-lg transition-all duration-200"
           :class="selected === method.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black hover:bg-blue-100'"
           x-text="method.name"
         ></button>
@@ -26,30 +26,71 @@
 
     <!-- Dynamic Form -->
     <div class="space-y-4">
+      <!-- Bisection -->
       <template x-if="selected === 'bisection'">
         <div>
           <h2 class="text-lg font-semibold mb-2">Bisection Method</h2>
-          <input type="number" x-model.number="form.a" placeholder="Enter a" class="border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.b" placeholder="Enter b" class="border p-2 rounded w-full mt-2" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="border p-2 rounded w-full mt-2" />
-          <button @click="submitBisection"
-                  class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Run Bisection
-          </button>
+          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mt-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
+          <button @click="submit('bisection')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
         </div>
       </template>
 
-      <!-- Add more methods here as needed -->
+      <!-- Newton -->
+      <template x-if="selected === 'newton'">
+        <div>
+          <h2 class="text-lg font-semibold mb-2">Newton-Raphson</h2>
+          <input type="number" x-model.number="form.x0" placeholder="Enter x0" class="input border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
+          <button @click="submit('newton')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+        </div>
+      </template>
+
+      <!-- Secant -->
+      <template x-if="selected === 'secant'">
+        <div>
+          <h2 class="text-lg font-semibold mb-2">Secant Method</h2>
+          <input type="number" x-model.number="form.a" placeholder="Enter x0" class="input border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.b" placeholder="Enter x1" class="input border p-2 rounded w-full mt-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
+          <button @click="submit('secant')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+        </div>
+      </template>
+
+      <!-- False Position -->
+      <template x-if="selected === 'false-position'">
+        <div>
+          <h2 class="text-lg font-semibold mb-2">False Position Method</h2>
+          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mt-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
+          <button @click="submit('false-position')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+        </div>
+      </template>
+
+      <!-- Fixed Point -->
+      <template x-if="selected === 'fixed-point'">
+        <div>
+          <h2 class="text-lg font-semibold mb-2">Fixed Point Iteration</h2>
+          <input type="number" x-model.number="form.x0" placeholder="Enter x0" class="input border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
+          <button @click="submit('fixed-point')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+        </div>
+      </template>
     </div>
 
     <!-- Error -->
     <template x-if="errorMsg">
-      <p class="text-red-600 mt-4" x-text="errorMsg"></p>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-6" role="alert">
+        <strong class="font-bold">Error:</strong>
+        <span class="block sm:inline" x-text="errorMsg"></span>
+      </div>
     </template>
 
     <!-- Results -->
     <template x-if="result">
-      <div class="mt-6 bg-green-50 p-4 rounded shadow">
+      <div class="mt-6 bg-green-50 border border-green-300 p-4 rounded shadow text-green-800">
         <p><strong>Root:</strong> <span x-text="result.root"></span></p>
         <p><strong>Iterations:</strong> <span x-text="result.iterations"></span></p>
         <p><strong>Error:</strong> <span x-text="result.error"></span></p>
@@ -61,8 +102,11 @@
     function rootFinderApp() {
       return {
         methods: [
-          { id: 'bisection', name: 'Bisection Method' },
-          // Add more methods here, e.g., { id: 'newton', name: 'Newton-Raphson' }
+          { id: 'bisection', name: 'Bisection' },
+          { id: 'newton', name: 'Newton-Raphson' },
+          { id: 'secant', name: 'Secant' },
+          { id: 'false-position', name: 'False Position' },
+          { id: 'fixed-point', name: 'Fixed Point' }
         ],
         selected: 'bisection',
         form: {
@@ -80,30 +124,26 @@
           this.form = {}; // reset form
         },
 
-        async submitBisection() {
+        async submit(methodId) {
           this.result = null;
           this.errorMsg = null;
 
-          if (!this.form.a || !this.form.b || !this.form.tol) {
-            this.errorMsg = "All fields are required.";
-            return;
-          }
-
           try {
-            const res = await fetch("http://127.0.0.1:8000/api/bisection", {
+            const res = await fetch(`http://127.0.0.1:8000/api/${methodId}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(this.form)
+              body: JSON.stringify(this.form),
             });
 
             if (!res.ok) {
-              this.errorMsg = "Server error.";
+              const error = await res.json();
+              this.errorMsg = error.detail || `Something went wrong while processing ${methodId}.`;
               return;
             }
 
             this.result = await res.json();
           } catch (err) {
-            this.errorMsg = "Could not connect to API.";
+            this.errorMsg = "Could not connect to the server. Please ensure the API is running.";
           }
         }
       };

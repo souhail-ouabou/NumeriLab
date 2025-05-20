@@ -1,39 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
-  <title>Root Finding App</title>
+  <title>NumEduLab</title>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="min-h-screen p-6 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')] bg-cover bg-center text-white">
+<body class="h-full text-white flex items-center justify-center relative overflow-hidden">
+  <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607706189992-eae578626c86?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center filter blur-sm scale-110 z-0"></div>
+  <div class="relative z-10 backdrop-blur-md bg-black/60 p-10 rounded-2xl shadow-2xl w-full max-w-3xl" x-data="rootFinderApp()">
 
-  <div x-data="rootFinderApp()" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-    <!-- Header -->
-    <h1 class="text-2xl font-bold mb-4 text-center">Root Finding Methods</h1>
+    <!-- Title -->
+    <h1 class="text-4xl font-bold text-center mb-2">NumEduLab</h1>
+    <p class="text-gray-300 text-center mb-6">Choose a numerical method and enter your inputs</p>
 
-    <!-- Menu -->
-    <div class="flex flex-wrap gap-4 mb-6 justify-center">
+    <!-- Method Buttons -->
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
       <template x-for="method in methods" :key="method.id">
         <button
           @click="selectMethod(method.id)"
-          class="px-4 py-2 rounded-lg transition-all duration-200"
-          :class="selected === method.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black hover:bg-blue-100'"
+          class="px-4 py-2 rounded-lg font-medium transition-all duration-200"
+          :class="selected === method.id ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-200 text-gray-800 hover:bg-blue-100'"
           x-text="method.name"
         ></button>
       </template>
     </div>
 
-    <!-- Dynamic Form -->
-    <div class="space-y-4">
+    <!-- Method Form Inputs -->
+    <div class="space-y-4 text-black bg-white p-6 rounded-xl shadow-lg">
       <!-- Bisection -->
       <template x-if="selected === 'bisection'">
         <div>
           <h2 class="text-lg font-semibold mb-2">Bisection Method</h2>
-          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mt-2" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
-          <button @click="submit('bisection')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Tolerance (e.g. 0.001)" class="input border p-2 rounded w-full" />
         </div>
       </template>
 
@@ -41,9 +42,8 @@
       <template x-if="selected === 'newton'">
         <div>
           <h2 class="text-lg font-semibold mb-2">Newton-Raphson</h2>
-          <input type="number" x-model.number="form.x0" placeholder="Enter x0" class="input border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
-          <button @click="submit('newton')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+          <input type="number" x-model.number="form.x0" placeholder="Enter x₀" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Tolerance" class="input border p-2 rounded w-full" />
         </div>
       </template>
 
@@ -51,10 +51,9 @@
       <template x-if="selected === 'secant'">
         <div>
           <h2 class="text-lg font-semibold mb-2">Secant Method</h2>
-          <input type="number" x-model.number="form.a" placeholder="Enter x0" class="input border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.b" placeholder="Enter x1" class="input border p-2 rounded w-full mt-2" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
-          <button @click="submit('secant')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+          <input type="number" x-model.number="form.a" placeholder="Enter x₀" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.b" placeholder="Enter x₁" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Tolerance" class="input border p-2 rounded w-full" />
         </div>
       </template>
 
@@ -62,10 +61,9 @@
       <template x-if="selected === 'false-position'">
         <div>
           <h2 class="text-lg font-semibold mb-2">False Position Method</h2>
-          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mt-2" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
-          <button @click="submit('false-position')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+          <input type="number" x-model.number="form.a" placeholder="Enter a" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.b" placeholder="Enter b" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Tolerance" class="input border p-2 rounded w-full" />
         </div>
       </template>
 
@@ -73,22 +71,25 @@
       <template x-if="selected === 'fixed-point'">
         <div>
           <h2 class="text-lg font-semibold mb-2">Fixed Point Iteration</h2>
-          <input type="number" x-model.number="form.x0" placeholder="Enter x0" class="input border p-2 rounded w-full" />
-          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="input border p-2 rounded w-full mt-2" />
-          <button @click="submit('fixed-point')" class="btn bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700">Run</button>
+          <input type="number" x-model.number="form.x0" placeholder="Enter x₀" class="input border p-2 rounded w-full mb-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Tolerance" class="input border p-2 rounded w-full" />
         </div>
       </template>
+
+      <button @click="submit(selected)" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition-all duration-200">
+        Run
+      </button>
     </div>
 
-    <!-- Error -->
+    <!-- Error Display -->
     <template x-if="errorMsg">
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-6" role="alert">
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-6 rounded shadow" role="alert">
         <strong class="font-bold">Error:</strong>
-        <span class="block sm:inline" x-text="errorMsg"></span>
+        <span class="block" x-text="errorMsg"></span>
       </div>
     </template>
 
-    <!-- Results -->
+    <!-- Results Display -->
     <template x-if="result">
       <div class="mt-6 bg-green-50 border border-green-300 p-4 rounded shadow text-green-800">
         <p><strong>Root:</strong> <span x-text="result.root"></span></p>
@@ -96,6 +97,7 @@
         <p><strong>Error:</strong> <span x-text="result.error"></span></p>
       </div>
     </template>
+  </div>
   </div>
 
   <script>
@@ -109,11 +111,7 @@
           { id: 'fixed-point', name: 'Fixed Point' }
         ],
         selected: 'bisection',
-        form: {
-          a: null,
-          b: null,
-          tol: null
-        },
+        form: {},
         result: null,
         errorMsg: null,
 
@@ -121,7 +119,7 @@
           this.selected = id;
           this.result = null;
           this.errorMsg = null;
-          this.form = {}; // reset form
+          this.form = {}; // Reset form fields
         },
 
         async submit(methodId) {
@@ -130,23 +128,29 @@
 
           try {
             const res = await fetch(`http://127.0.0.1:8000/api/${methodId}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(this.form),
             });
 
             if (!res.ok) {
               const error = await res.json();
-              this.errorMsg = error.detail || `Something went wrong while processing ${methodId}.`;
+
+              if (Array.isArray(error.detail)) {
+                // Only show the msg from each error
+                this.errorMsg = error.detail.map(e => e.msg).join('; ');
+              } else {
+                this.errorMsg = error.detail || error.message || `Error while executing ${methodId}.`;
+              }
               return;
             }
 
             this.result = await res.json();
           } catch (err) {
-            this.errorMsg = "Could not connect to the server. Please ensure the API is running.";
+            this.errorMsg = 'Cannot connect to the backend API. Is it running on port 8000?';
           }
         }
-      };
+      }
     }
   </script>
 </body>

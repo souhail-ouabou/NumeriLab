@@ -1,6 +1,6 @@
 # NumEduLab
 
-A simple frontend app using Alpine.js + Tailwind CSS for interacting with a numerical methods API.
+A simple  app using Alpine.js + Tailwind CSS + FastAPI for interacting with a numerical methods API.
 
 ## 🧠 Features
 

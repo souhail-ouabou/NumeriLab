@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bisection API Client</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+  <div x-data="bisectionForm()" class="p-4 space-y-2">
+    <input type="number" x-model.number="a" placeholder="Enter a" />
+    <input type="number" x-model.number="b" placeholder="Enter b" />
+    <input type="number" x-model.number="tol" placeholder="Enter tolerance" />
+    
+    <button @click="submit" style="background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px;">
+      Run Bisection
+    </button>
+
+    <template x-if="errorMsg">
+      <p style="color:red;" x-text="errorMsg"></p>
+    </template>
+
+    <template x-if="result">
+      <div style="margin-top: 1rem;">
+        <p><strong>Root:</strong> <span x-text="result.root"></span></p>
+        <p><strong>Iterations:</strong> <span x-text="result.iterations"></span></p>
+        <p><strong>Error:</strong> <span x-text="result.error"></span></p>
+      </div>
+    </template>
+  </div>
+
+  <script>
+    function bisectionForm() {
+      return {
+        a: null,
+        b: null,
+        tol: null,
+        result: null,
+        errorMsg: null,
+
+        async submit() {
+          this.result = null;
+          this.errorMsg = null;
+
+          if (this.a == null || this.b == null || this.tol == null) {
+            this.errorMsg = "Please fill in all fields.";
+            return;
+          }
+
+          try {
+            const res = await fetch("http://127.0.0.1:8000/api/bisection", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                a: this.a,
+                b: this.b,
+                tol: this.tol
+              })
+            });
+
+            if (!res.ok) {
+              const text = await res.text();
+              this.errorMsg = `Server error: ${text}`;
+              return;
+            }
+
+            const data = await res.json();
+            this.result = data;
+          } catch (err) {
+            this.errorMsg = "Could not connect to the API.";
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

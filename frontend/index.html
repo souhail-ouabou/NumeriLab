@@ -2,25 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bisection API Client</title>
+  <title>Root Finding App</title>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div x-data="bisectionForm()" class="p-4 space-y-2">
-    <input type="number" x-model.number="a" placeholder="Enter a" />
-    <input type="number" x-model.number="b" placeholder="Enter b" />
-    <input type="number" x-model.number="tol" placeholder="Enter tolerance" />
-    
-    <button @click="submit" style="background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px;">
-      Run Bisection
-    </button>
+<body class="bg-gray-100 min-h-screen p-6">
 
+  <div x-data="rootFinderApp()" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold mb-4 text-center">Root Finding Methods</h1>
+
+    <!-- Menu -->
+    <div class="flex space-x-4 mb-6 justify-center">
+      <template x-for="method in methods" :key="method.id">
+        <button
+          @click="selectMethod(method.id)"
+          class="px-4 py-2 rounded-lg"
+          :class="selected === method.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black hover:bg-blue-100'"
+          x-text="method.name"
+        ></button>
+      </template>
+    </div>
+
+    <!-- Dynamic Form -->
+    <div class="space-y-4">
+      <template x-if="selected === 'bisection'">
+        <div>
+          <h2 class="text-lg font-semibold mb-2">Bisection Method</h2>
+          <input type="number" x-model.number="form.a" placeholder="Enter a" class="border p-2 rounded w-full" />
+          <input type="number" x-model.number="form.b" placeholder="Enter b" class="border p-2 rounded w-full mt-2" />
+          <input type="number" x-model.number="form.tol" placeholder="Enter tolerance" class="border p-2 rounded w-full mt-2" />
+          <button @click="submitBisection"
+                  class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Run Bisection
+          </button>
+        </div>
+      </template>
+
+      <!-- Add more methods here as needed -->
+    </div>
+
+    <!-- Error -->
     <template x-if="errorMsg">
-      <p style="color:red;" x-text="errorMsg"></p>
+      <p class="text-red-600 mt-4" x-text="errorMsg"></p>
     </template>
 
+    <!-- Results -->
     <template x-if="result">
-      <div style="margin-top: 1rem;">
+      <div class="mt-6 bg-green-50 p-4 rounded shadow">
         <p><strong>Root:</strong> <span x-text="result.root"></span></p>
         <p><strong>Iterations:</strong> <span x-text="result.iterations"></span></p>
         <p><strong>Error:</strong> <span x-text="result.error"></span></p>
@@ -29,46 +58,52 @@
   </div>
 
   <script>
-    function bisectionForm() {
+    function rootFinderApp() {
       return {
-        a: null,
-        b: null,
-        tol: null,
+        methods: [
+          { id: 'bisection', name: 'Bisection Method' },
+          // Add more methods here, e.g., { id: 'newton', name: 'Newton-Raphson' }
+        ],
+        selected: 'bisection',
+        form: {
+          a: null,
+          b: null,
+          tol: null
+        },
         result: null,
         errorMsg: null,
 
-        async submit() {
+        selectMethod(id) {
+          this.selected = id;
+          this.result = null;
+          this.errorMsg = null;
+          this.form = {}; // reset form
+        },
+
+        async submitBisection() {
           this.result = null;
           this.errorMsg = null;
 
-          if (this.a == null || this.b == null || this.tol == null) {
-            this.errorMsg = "Please fill in all fields.";
+          if (!this.form.a || !this.form.b || !this.form.tol) {
+            this.errorMsg = "All fields are required.";
             return;
           }
 
           try {
             const res = await fetch("http://127.0.0.1:8000/api/bisection", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                a: this.a,
-                b: this.b,
-                tol: this.tol
-              })
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(this.form)
             });
 
             if (!res.ok) {
-              const text = await res.text();
-              this.errorMsg = `Server error: ${text}`;
+              this.errorMsg = "Server error.";
               return;
             }
 
-            const data = await res.json();
-            this.result = data;
+            this.result = await res.json();
           } catch (err) {
-            this.errorMsg = "Could not connect to the API.";
+            this.errorMsg = "Could not connect to API.";
           }
         }
       };
